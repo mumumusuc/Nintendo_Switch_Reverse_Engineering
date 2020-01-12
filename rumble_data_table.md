@@ -32,8 +32,9 @@ else if(amp > 0.12f)
 else{
   // TBD
 }
-uint16_t hf_amp = encoded_hex_amp * 2;    // encoded_hex_amp<<1;
-uint8_t lf_amp = encoded_hex_amp / 2 + 64;// (encoded_hex_amp>>1)+0x40;
+uint16_t hf_amp = encoded_hex_amp << 1; 
+uint16_t msb = (encoded_hex_amp & 0x1) << 15;
+uint16_t lf_amp = （(encoded_hex_amp >> 1)|msb） + 0x0040;
 ```
 
 The high frequency and low amplitude are encoded and must always add the "control" byte to the HA/LF byte. An example is the following:
