@@ -21,34 +21,63 @@ The procedure must be done sequentially:
 - 1: x01 x01 [{BD_ADDR_LE}] (Send host MAC and acquire Joy-Con MAC)
 - 2: x01 x02 (Acquire the XORed LTK hash)
 - 3: x01 x03 (saves pairing info in Joy-Con)
+- 4: x01 x04 (TODO:)
 
-Host Pair request x01 (send HOST BT MAC and request Joy-Con BT MAC):
+step 1:
 
-| Byte # | Sample               | Remarks                                 |
-|:------:|:--------------------:| --------------------------------------- |
-|  0     | `x01`                | subcmd                                  |
-|  1     | `x01`                | Pair request type                       |
-|  2-7   | `x16 30 AA 82 BB 98` | Host Bluetooth address in Little-Endian |
+  Host Pair request x01 (send HOST BT MAC and request Joy-Con BT MAC):
 
-Joy-Con Pair request x01 reply:
+  | Byte # | Sample               | Remarks                                 |
+  |:------:|:--------------------:| --------------------------------------- |
+  |  0     | `x01`                | subcmd                                  |
+  |  1     | `x01`                | Pair request type                       |
+  |  2-7   | `x16 30 AA 82 BB 98` | Host Bluetooth address in Little-Endian |
 
-| Byte # | Sample               | Remarks                         |
-|:------:|:--------------------:| ------------------------------- |
-|  0     | `x01`                | Pair request type               |
-|  1-6   | `x57 30 EA 8A BB 7C` | Joy-Con BT MAC in Little-Endian |
-|  7-31  |                      | Descriptor?                     |
+  Joy-Con Pair request x01 reply:
 
-Host Pair request x03 (request LTK):
+  | Byte # | Sample               | Remarks                         |
+  |:------:|:--------------------:| ------------------------------- |
+  |  0     | `x01`                | Pair request type               |
+  |  1-6   | `x57 30 EA 8A BB 7C` | Joy-Con BT MAC in Little-Endian |
+  |  7-31  |                      | Descriptor?                     |
 
-Joy-Con Pair request x02 reply:
+step 2:
 
-Long Term Key (LTK) in Little-Endian. Each byte is XORed with 0xAA.
+  Host Pair request x02 (request LTK):
+  
+  | Byte # | Sample               | Remarks                                 |
+  |:------:|:--------------------:| --------------------------------------- |
+  |  0     | `x01`                | subcmd                                  |
+  |  1     | `x02`                | Pair request type                       |
+  |  2-7   | `TODO`               | TODO |
+  
+  Joy-Con Pair request x02 reply:
 
-Host Pair request x03:
+  | Byte # | Sample               | Remarks                                 |
+  |:------:|:--------------------:| --------------------------------------- |
+  |  0     | `x02`                | Pair request type                       |
+  |  1-16  | `TODO` | Long Term Key (LTK) in Little-Endian. Each byte is XORed with 0xAA.* |
 
-Joy-Con saves pairing info in x2000 SPI region.
+step3:
+
+  Host Pair request x03:
+
+  | Byte # | Sample               | Remarks                                 |
+  |:------:|:--------------------:| --------------------------------------- |
+  |  0     | `x01`                | subcmd                                  |
+  |  1     | `x03`                | Pair request type                       |
+  |  2-7   | `TODO`               | TODO |
+  
+  Joy-Con saves pairing info in x2000 SPI region.
+
+  | Byte # | Sample               | Remarks                                 |
+  |:------:|:--------------------:| --------------------------------------- |
+  |  0     | `x03`                | Pair request type                       |
+
 
 If the command is `x11`, it polls the MCU State? Used with IR Camera or NFC?
+
+* TODO: refer to `spi_memory@0x00002000` 
 
 ### Subcommand 0x02: Request device info
 
@@ -56,11 +85,11 @@ Response data after 02 command byte:
 
 | Byte # | Sample               | Remarks                                                  |
 |:------:|:--------------------:| -------------------------------------------------------- |
-|  0-1   | `x03 48`             | Firmware Version. Latest is 3.89 (from 5.0.0 and up).    |
+|  0-1   | `x03 48`             | Firmware Version. Latest is 4.06 (from 5.0.0 and up).    |
 |  2     | `x01`                | 1=Left Joy-Con, 2=Right Joy-Con, 3=Pro Controller.       |
 |  3     | `x02`                | Unknown. Seems to be always `02`                         |
 |  4-9   | `x7C BB 8A EA 30 57` | Joy-Con MAC address in Big Endian                        |
-|  10    | `x01`                | Unknown. Seems to be always `01`                         |
+|  10    | `x01/x03`            | Unknown. Seems to be always `01`(`03` from 10.0+)        |
 |  11    | `x01`                | If `01`, colors in SPI are used. Otherwise default ones. |
 
 ### Subcommand 0x03: Set input report mode
