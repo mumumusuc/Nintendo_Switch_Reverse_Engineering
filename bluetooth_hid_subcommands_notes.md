@@ -49,14 +49,14 @@ step 2:
   |:------:|:--------------------:| --------------------------------------- |
   |  0     | `x01`                | subcmd                                  |
   |  1     | `x02`                | Pair request type                       |
-  |  2-7   | `TODO`               | TODO |
+  |  2-37  | `x10 d4 3d 05 00 00 00 00 cb d9 da 2a 00 00 00 94 08 b0 3d 05 00 00 00 98 0f d4 3d 05 00 00 00 70 10 d4 3d 05` | Not fixed, unknown |
   
   Joy-Con Pair request x02 reply:
 
   | Byte # | Sample               | Remarks                                 |
   |:------:|:--------------------:| --------------------------------------- |
   |  0     | `x02`                | Pair request type                       |
-  |  1-16  | `TODO` | Long Term Key (LTK) in Little-Endian. Each byte is XORed with 0xAA.* |
+  |  1-16  | `x58 33 c4 77 0c 57 26 b5 96 9e 6a df b4 41 43 49` | Long Term Key (LTK) in Little-Endian. Each byte is XORed with 0xAA. |
 
 step 3:
 
@@ -66,7 +66,7 @@ step 3:
   |:------:|:--------------------:| --------------------------------------- |
   |  0     | `x01`                | subcmd                                  |
   |  1     | `x03`                | Pair request type                       |
-  |  2-7   | `TODO`               | TODO |
+  |  2-37  | same as step 2       | Not fixed, unknown                      |
   
   Joy-Con saves pairing info in x2000 SPI region.
 
@@ -74,7 +74,7 @@ step 3:
   |:------:|:--------------------:| --------------------------------------- |
   |  0     | `x03`                | Pair request type                       |
 
-step 4:(this seems to replace pair-request-0x1)
+step 4: (seems to replace step 1)
   
   Host Pair request x04 (send HOST BT MAC and name):
 
@@ -85,14 +85,14 @@ step 4:(this seems to replace pair-request-0x1)
   |  2-7   | `x16 30 AA 82 BB 98` | Host Bluetooth address in Little-Endian |
   |  8-9   | `x00 04 3c`          | Fixed bytes, unknown meaning            |
   |  10~30 | `x4e 69 6e 74 65 6e 64 6f 20 53 77 69 74 63 68 00 00 00 00 00 68` | 21 bytes data. "Nintendo Switch" in Ascii, filled with `00` and end with `68`|
-  |  31~36 | `x00 14 06 b3 3d 05` | Not fixed, unknown meaning              |
+  |  31~36 | `x00 14 06 b3 3d 05` | Not fixed, unknown                      |
 
   Joy-Con Pair request x04 reply:
 
   
   | Byte # | Sample               | Remarks                         |
   |:------:|:--------------------:| ------------------------------- |
-  |  0     | `x01`/`x03`          | Pair request type (**NOTE** byte#1~29 is `x00` when replies `x03`)|
+  |  0     | `x01`/`x03`          | Pair request type (**NOTE:** byte#1~29 is `x00` when replies `x03`)|
   |  1-6   | `x57 30 EA 8A BB 7C` | Joy-Con BT MAC in Little-Endian |
   |  7-8   | `x25 08`             | Fixed bytes, unknown meaning    |
   |  9-29  | `4a 6f 79 2d 43 6f 6e 20 28 52 29 00 00 00 00 00 00 00 00 00 68` | 21 bytes data. "Joy-Con (R)" in Ascii, filled with `00` and end with `68`|
@@ -237,6 +237,27 @@ Write configuration data to MCU. This data can be IR configuration, NFC configur
 Takes 38 or 37 bytes long argument data.
 
 Replies with ACK `xA0` `x21` and 34 bytes of data.
+
+Host send config:
+
+| Byte # |  Sample               | Remarks                      |
+|:------:|:---------------------:|------------------------------|
+| 0      | `x21`                 | subcmd id                    |
+| 1      | `x21`/`x23`           | set MCU mode / write MCU reg |
+| 2-36   | `x00...`              | config data                  |
+| 37     | `x00`                 | crc8, sum #1-#36, 36 bytes   |
+
+Controller replies:
+
+| Byte # |  Sample               | Remarks                      |
+|:------:|:---------------------:|------------------------------|
+| 0      | `x21`                 | reply id                     |
+| 1      | `x01`                 | config done(?)               |
+| 2-3    | `x00 ff`              | unknown                      |
+| 4-5    | `x00 03`              | `x00 03` fixed when NS10.0.+ & Pro3.86 |
+| 6-7    | `x00 05`              | `x00 05` fixed when NS10.0.+ & Pro3.86 |
+| 8      | `x01`                 | MCU state standby            |
+| 34     | `x5c`                 | crc8, sum #1-#33, 33 bytes   |
 
 ### Subcommand 0x22: Set NFC/IR MCU state
 
