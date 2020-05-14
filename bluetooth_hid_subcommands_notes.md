@@ -21,7 +21,7 @@ The procedure must be done sequentially:
 - 1: x01 x01 [{BD_ADDR_LE}] (Send host MAC and acquire Joy-Con MAC)
 - 2: x01 x02 (Acquire the XORed LTK hash)
 - 3: x01 x03 (Saves pairing info in Joy-Con)
-- 4: x01 x04 (Exchange device info)
+- 4: x01 x04 (Fast pair request)
 
 step 1:
 
