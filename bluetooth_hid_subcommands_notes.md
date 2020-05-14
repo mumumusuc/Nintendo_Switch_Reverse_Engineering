@@ -20,8 +20,8 @@ The procedure must be done sequentially:
 
 - 1: x01 x01 [{BD_ADDR_LE}] (Send host MAC and acquire Joy-Con MAC)
 - 2: x01 x02 (Acquire the XORed LTK hash)
-- 3: x01 x03 (saves pairing info in Joy-Con)
-- 4: x01 x04 (TODO:)
+- 3: x01 x03 (Saves pairing info in Joy-Con)
+- 4: x01 x04 (Exchange device info)
 
 step 1:
 
@@ -58,9 +58,9 @@ step 2:
   |  0     | `x02`                | Pair request type                       |
   |  1-16  | `TODO` | Long Term Key (LTK) in Little-Endian. Each byte is XORed with 0xAA.* |
 
-step3:
+step 3:
 
-  Host Pair request x03:
+  Host Pair request x03 (tell controller to save LTK):
 
   | Byte # | Sample               | Remarks                                 |
   |:------:|:--------------------:| --------------------------------------- |
@@ -74,6 +74,34 @@ step3:
   |:------:|:--------------------:| --------------------------------------- |
   |  0     | `x03`                | Pair request type                       |
 
+step 4:(this seems to replace pair-request-0x1)
+  
+  Host Pair request x04 (send HOST BT MAC and name):
+
+  | Byte # | Sample               | Remarks                                 |
+  |:------:|:--------------------:| --------------------------------------- |
+  |  0     | `x01`                | subcmd                                  |
+  |  1     | `x04`                | Pair request type                       |
+  |  2-7   | `x16 30 AA 82 BB 98` | Host Bluetooth address in Little-Endian |
+  |  8-9   | `x00 04 3c`          | Fixed bytes, unknown meaning            |
+  |  10~30 | `x4e 69 6e 74 65 6e 64 6f 20 53 77 69 74 63 68 00 00 00 00 00 68` | 21 bytes data. "Nintendo Switch" in Ascii, filled with `00` and end with `68`|
+  |  31~36 | `x00 14 06 b3 3d 05` | Not fixed, unknown meaning              |
+
+  Joy-Con Pair request x04 reply:
+
+  
+  | Byte # | Sample               | Remarks                         |
+  |:------:|:--------------------:| ------------------------------- |
+  |  0     | `x01`/`x03`          | Pair request type (**NOTE** byte#1~29 is `x00` when replies `x03`)|
+  |  1-6   | `x57 30 EA 8A BB 7C` | Joy-Con BT MAC in Little-Endian |
+  |  7-8   | `x25 08`             | Fixed bytes, unknown meaning    |
+  |  9-29  | `4a 6f 79 2d 43 6f 6e 20 28 52 29 00 00 00 00 00 00 00 00 00 68` | 21 bytes data. "Joy-Con (R)" in Ascii, filled with `00` and end with `68`|
+  
+  **NOTE**
+  
+    *when no paired data in spi_memory@x2000, Joy-Con replies `x01` asking for new pairing session and goto step 2*
+  
+    *when valid paried data in spi_memory@x2000, Joy-Con replies `x03` to end this pairing session*
 
 If the command is `x11`, it polls the MCU State? Used with IR Camera or NFC?
 
@@ -89,7 +117,7 @@ Response data after 02 command byte:
 |  2     | `x01`                | 1=Left Joy-Con, 2=Right Joy-Con, 3=Pro Controller.       |
 |  3     | `x02`                | Unknown. Seems to be always `02`                         |
 |  4-9   | `x7C BB 8A EA 30 57` | Joy-Con MAC address in Big Endian                        |
-|  10    | `x01/x03`            | Unknown. Seems to be always `01`(`03` from 10.0+)        |
+|  10    | `x01`/`x03`          | Unknown. Seems to be always `01`(`03` for 10.0.+)        |
 |  11    | `x01`                | If `01`, colors in SPI are used. Otherwise default ones. |
 
 ### Subcommand 0x03: Set input report mode
@@ -208,7 +236,7 @@ Write configuration data to MCU. This data can be IR configuration, NFC configur
 
 Takes 38 or 37 bytes long argument data.
 
-Replies with ACK `xA0` `x20` and 34 bytes of data.
+Replies with ACK `xA0` `x21` and 34 bytes of data.
 
 ### Subcommand 0x22: Set NFC/IR MCU state
 
