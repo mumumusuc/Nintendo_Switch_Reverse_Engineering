@@ -90,8 +90,8 @@ Hold your controller sideways so that SL, SYNC, and SR line up with the screen. 
 
 | Byte | Bit `x01` | `x02`  |`x04`        |`x08`         |`x10`  |`x20`     |`x40`   |`x80`     |
 |:----:|:---------:|:------:|:------------|:------------:|:-----:|:--------:|:------:|:--------:|
-| 1    | Down      | Right  | Left        | Up           | SL    | SR       | --     | --       |
-| 2    | Minus     | Plus   | Left Stick  | Right Stick  | Home  | Capture  | L / R  | ZL / ZR  |
+| 1    | Down      | Right  | Left        | Up           | SL : jc<br>L : pro    | SR : jc<br>R : pro       | --     | --       |
+| 2    | Minus     | Plus   | Left Stick  | Right Stick  | Home  | Capture  | L / R : jc<br>ZL : pro  | ZL / ZR : jc<br>ZR : pro  |
 
 ### INPUT 0x21
 
