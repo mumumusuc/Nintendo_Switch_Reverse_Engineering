@@ -350,7 +350,7 @@ The Mini Cycle configurations are grouped in two (except the 15th):
 | `x03`, High    | Fading Transition Duration to Mini Cycle 1 (Uses PWM). Value is a Multiplier of Global Mini Cycle Duration |
 | `x03`, Low     | LED Duration Multiplier of Mini Cycle 1. `x0` = `x1` = x1 |
 | `x04`, High    | Fading Transition Duration to Mini Cycle 2 (Uses PWM). Value is a Multiplier of Global Mini Cycle Duration |
-| `x04`, Low     | LED Duration Multiplier of Mini Cycle 1. `x0` = `x1` = x1 |
+| `x04`, Low     | LED Duration Multiplier of Mini Cycle 2. `x0` = `x1` = x1 |
 
 The Fading Transition uses a PWM to increment the transition to the Mini Cycle. 
 
